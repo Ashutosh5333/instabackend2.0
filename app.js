@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
+
 app.use(
   cors({
     origin: "*",
@@ -19,6 +20,11 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.send("Hello");
 });
+
+ /** All routes  */
+const user = require("./routes/user.route");
+
+app.use("/user", user);
 
 
 
