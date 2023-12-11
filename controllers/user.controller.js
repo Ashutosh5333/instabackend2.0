@@ -15,7 +15,7 @@ const Registeruser = catchAsyncErrors(async (req, res, next) => {
     }
 
     bcrypt.hash(password, 4, async (err, hash) => {
-      console.log("hasssh", hash);
+      // console.log("hasssh", hash);
       if (err) {
         console.error(err);
         return res.status(500).json({ msg: "Error in hashing password" });
@@ -23,7 +23,7 @@ const Registeruser = catchAsyncErrors(async (req, res, next) => {
       try {
         const user = new Usermodel({ email, password: hash, name });
         await user.save();
-        console.log("uerrrrpasssword", hash);
+        // console.log("uerrrrpasssword", hash);
         res.status(201).json({ msg: "Signup successful" });
       } catch (error) {
         console.error("error form 53", error);
@@ -121,7 +121,8 @@ const getUserById = async (req, res) => {
   }
 };
 
-  /*** Updated user by id */
+ /*** Updated user by id */
+
 const updateUserById = async (req, res) => {
   const uId = req.params.id;
   const payload = req.body;
@@ -150,7 +151,7 @@ const updateUserById = async (req, res) => {
 
  /*** Deleted user by id */
 
-const DeletedUserById = async (req, res) => {
+ const DeletedUserById = async (req, res) => {
     const uId = req.params.id;
   
     const userdata = await Usermodel.findById(uId);

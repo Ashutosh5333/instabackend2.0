@@ -23,8 +23,10 @@ app.get("/", (req, res) => {
 
  /** All routes  */
 const user = require("./routes/user.route");
+const insta = require("./routes/insta.route")
 
 app.use("/user", user);
+app.use("/insta",insta)
 
 
 
