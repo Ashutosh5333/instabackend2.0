@@ -3,6 +3,8 @@ const { Usermodel } = require("../models/User.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+/*** Register user */
+
 const Registeruser = catchAsyncErrors(async (req, res, next) => {
   const { email, password, name } = req.body;
 
@@ -38,11 +40,13 @@ const Registeruser = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
+/**** Login user  */
+
 const loginUser = catchAsyncErrors(async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await Usermodel.findOne({ email })
+    const user = await Usermodel.findOne({ email });
     // console.log("User:", user);
     const hashed_password = user.password;
     // console.log("Hashed Password:", hashed_password);
@@ -54,7 +58,6 @@ const loginUser = catchAsyncErrors(async (req, res) => {
       return res.send("User not registered");
     }
 
-    
     const passwordMatch = await new Promise((resolve, reject) => {
       bcrypt.compare(password, hashed_password, (err, result) => {
         if (err) {
@@ -70,7 +73,7 @@ const loginUser = catchAsyncErrors(async (req, res) => {
       const token = jwt.sign({ userId: user._id }, "hush");
       return res.send({
         msg: "Login successful",
-          token: token,
+        token: token,
         data: {
           name: user.name,
           email: user.email,
@@ -86,12 +89,90 @@ const loginUser = catchAsyncErrors(async (req, res) => {
   }
 });
 
+/*** Get All users  */
+
 const getAllUsers = async (req, res) => {
   try {
-    res.send("All user");
+    const Alluser = await Usermodel.find();
+    res.send({ Alluserdata: Alluser });
   } catch (err) {
     res.send("somting went wrong");
   }
 };
 
-module.exports = { Registeruser, getAllUsers, loginUser };
+ /*** Get  single user data  */
+
+const getUserById = async (req, res) => {
+  const uId = req.params.id;
+  try {
+      const user = await Usermodel.findById( uId )
+     console.log("userdata",user)
+       if(!user){
+         res.status(500).json({ success: false, message: "User Not Found" });
+       }
+       const Userdata = await Usermodel.findById(uId).select("-password");
+       res.status(200).json({
+         success: true,
+         Userdata,
+       });
+  } catch (err) {
+    console.log(err);
+    res.send({ msg: "Something went wrong" });
+  }
+};
+
+  /*** Updated user by id */
+const updateUserById = async (req, res) => {
+  const uId = req.params.id;
+  const payload = req.body;
+
+  const userdata = await Usermodel.findById(uId);
+  if (!userdata) {
+    res.status(500).json({ success: false, message: "userdata Not Found" });
+  }
+  try {
+    const Userdata = await Usermodel.findByIdAndUpdate(uId, payload, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    });
+
+    res.status(200).json({
+      success: true,
+      msg: "Data updated successfully",
+      Userdata,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({ msg: "Something went wrong" });
+  }
+};
+
+ /*** Deleted user by id */
+
+const DeletedUserById = async (req, res) => {
+    const uId = req.params.id;
+  
+    const userdata = await Usermodel.findById(uId);
+    if (!userdata) {
+      res.status(500).json({ success: false, message: "userdata Not Found" });
+    }
+    try {
+      await Usermodel.findByIdAndDelete(uId);
+
+      res.status(200).json({
+        success: true,
+        msg: "Deleted user successfully",
+      });
+    } catch (err) {
+      console.log(err);
+      res.send({ msg: "Something went wrong" });
+    }
+  };
+  
+  
+  
+
+
+
+module.exports = { Registeruser, getAllUsers, loginUser, updateUserById ,getUserById ,DeletedUserById };
