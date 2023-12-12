@@ -29,10 +29,9 @@ const getAllinstasinglepost = catchAsyncErrors(async (req, res) => {
 });
 
 const getMyPost = catchAsyncErrors(async (req, res) => {
+      console.log("userid********",req.userId)
   try {
-    const productData = await InstaModel.find({
-      userId: req.body.userId,
-    }).populate("postedby", ["name", "email", "image", "username"]);
+    const productData = await InstaModel.find({ userId: req.userId}).populate("postedby", ["name", "email", "image", "username"]);
     res.send(productData);
   } catch (err) {
     console.log(err);
@@ -67,7 +66,7 @@ const getMyPost = catchAsyncErrors(async (req, res) => {
 const createPost = async (req, res) => {
   try {
     const instaPost = await InstaModel.create(req.body);
-    // console.log("instapost **********data ", instaPost);
+    console.log("instapost **********data ", instaPost);
     res
       .status(201)
       .json({ message: "Insta post created successfully", data: instaPost });
@@ -77,13 +76,16 @@ const createPost = async (req, res) => {
   }
 };
 
+    /*** Edit post */
+
 const editpost = catchAsyncErrors(async (req, res) => {
   const prodId = req.params.id;
-  const userId = req.body.userId;
+  const userId = req.userId;
   const payload = req.body;
-
+         console.log("Userid***",userId)
   try {
     const productData = await InstaModel.findOne({ _id: prodId });
+      console.log("productdata*********",productData.userId)
     if (userId !== productData.userId) {
       return res.status(401).send("You are not authorized");
     } else {
@@ -108,12 +110,16 @@ const editpost = catchAsyncErrors(async (req, res) => {
   }
 });
 
+ /*** Deleted post */
+
 const deletepost = catchAsyncErrors(async (req, res) => {
   const prodId = req.params.id;
-  const userId = req.body.userId;
+  const userId = req.userId;
+//   console.log("userid*****",userId)
 
   try {
     const productData = await InstaModel.findOne({ _id: prodId });
+    console.log("product*****",productData.userId)
     if (userId !== productData.userId) {
       return res.status(401).send("You are not authorized");
     } else {
@@ -126,12 +132,14 @@ const deletepost = catchAsyncErrors(async (req, res) => {
   }
 });
 
-const likeProduct = catchAsyncErrors(async (req, res) => {
-  const userId = req.body.userId;
+ /*** Like post */
 
+const likeProduct = catchAsyncErrors(async (req, res) => {
+  const userId = req.userId;
+       console.log("useriflike*******",userId)
   try {
     const result = await InstaModel.findByIdAndUpdate(
-      req.params.postId,
+      req.params.id,
       {
         $push: { likes: userId },
       },
@@ -144,12 +152,14 @@ const likeProduct = catchAsyncErrors(async (req, res) => {
   }
 });
 
+  /*** UnLike post */
+
 const unlikeProduct = catchAsyncErrors(async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.userId;
 
   try {
     const result = await InstaModel.findByIdAndUpdate(
-      req.params.postId,
+      req.params.id,
       {
         $pull: { likes: userId },
       },

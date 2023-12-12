@@ -15,7 +15,9 @@ const instaValidationSchema = Joi.object({
     "string.max": "Title should not exceed {#limit} characters",
   }),
   pic: Joi.array().items(Joi.string()),
-  userId: Joi.string(),
+  userId: Joi.string().required().messages({
+    "string.base": "UserID must Required",
+  }),
   likes: Joi.array().items(Joi.string()),
   comments: Joi.array().items(
     Joi.object({
@@ -30,9 +32,11 @@ const instaValidationSchema = Joi.object({
 });
 
 const validateInstaData = (req, res, next) => {
+    console.log("userid****validator",req.body.userId)
   const userdata = {
     ...req.body,
     postedby: req.userId,
+    userId:req.userId
   };
 
   const { error, value } = instaValidationSchema.validate(userdata);

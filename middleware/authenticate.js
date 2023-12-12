@@ -11,7 +11,7 @@ const authenticate = (req, res, next) => {
       const userId = decoded.userId;
       req.userId = userId;
       //  console.log(decoded)
-      // console.log("coming from middleware**********",userId);
+      console.log("coming from middleware**********",userId);
       next();
     } else {
       res.send({ msg: "you are not authenticated login please" });
