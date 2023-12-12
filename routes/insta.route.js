@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-   GetAllinstapost, getAllinstasinglepost, getMyPost, createPost, editpost, deletepost, likeProduct, unlikeProduct
+   GetAllinstapost, getAllinstasinglepost, getMyPost, createPost, editpost, deletepost, likeProduct, unlikeProduct, addComment
 } = require("../controllers/insta.controller");
 const { authenticate } = require("../middleware/authenticate");
 const { validateInstaData } = require("../validation/instavalidator");
@@ -16,6 +16,7 @@ InstaRouter.delete("/instadelete/:id",authenticate, deletepost)
 /*** Likes and Unlike and comment */
 InstaRouter.put("/instapostlike/:id", authenticate, likeProduct);
 InstaRouter.put("/instapostunlike/:id",authenticate,unlikeProduct)
+InstaRouter.put('/instapostcomment/:id',authenticate, addComment)
 
 
 /** Public user */ 

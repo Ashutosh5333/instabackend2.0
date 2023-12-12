@@ -6,6 +6,7 @@ const GetAllinstapost = catchAsyncErrors(async (req, res) => {
   try {
     const product = await InstaModel.find()
       .populate("postedby", ["name", "email", "image"])
+      .populate("likes","name")
       .populate("comments.postedby", ["name", "_id", "image", "username"]);
     res.send(product);
   } catch (err) {
@@ -144,7 +145,7 @@ const likeProduct = catchAsyncErrors(async (req, res) => {
         $push: { likes: userId },
       },
       { new: true }
-    ).exec();
+    ).populate('likes', 'name').exec();
     res.json(result);
   } catch (err) {
     console.log(err);
@@ -173,15 +174,17 @@ const unlikeProduct = catchAsyncErrors(async (req, res) => {
 });
 
 const addComment = catchAsyncErrors(async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.userId;
+   const {text} = req.body
   const comment = {
-    text: req.body.text,
+    text,
     postedby: userId,
   };
 
+    console.log("comment payload",comment)
   try {
     const result = await InstaModel.findByIdAndUpdate(
-      req.params.postId,
+      req.params.id,
       {
         $push: { comments: comment },
       },
@@ -190,7 +193,6 @@ const addComment = catchAsyncErrors(async (req, res) => {
       }
     )
       .populate("comments.postedby", ["name", "_id", "image", "username"])
-      .populate("postedby", ["name", "_id", "image", "username"])
       .exec();
     res.json(result);
   } catch (err) {
@@ -198,6 +200,7 @@ const addComment = catchAsyncErrors(async (req, res) => {
     res.status(422).json({ error: err });
   }
 });
+
 
 // Exporting the modified router
 
