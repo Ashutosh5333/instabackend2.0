@@ -9,10 +9,9 @@ const authenticate = (req, res, next) => {
     const decoded = jwt.verify(token, "hush");
     if (decoded) {
       const userId = decoded.userId;
-      req.body.userId = userId;
+      req.userId = userId;
       //  console.log(decoded)
-      console.log(userId);
-
+      // console.log("coming from middleware**********",userId);
       next();
     } else {
       res.send({ msg: "you are not authenticated login please" });

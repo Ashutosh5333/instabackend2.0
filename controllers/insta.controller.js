@@ -1,7 +1,6 @@
-const Joi = require('joi');
+const Joi = require("joi");
 const catchAsyncErrors = require("../middleware/catchError"); // Assuming you have this middleware defined
-const { InstaModel } = require("../models/Insta.model");
-
+const { InstaModel, instaValidationSchema } = require("../models/Insta.model");
 
 const GetAllinstapost = catchAsyncErrors(async (req, res) => {
   try {
@@ -14,8 +13,6 @@ const GetAllinstapost = catchAsyncErrors(async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-
 
 const getAllinstasinglepost = catchAsyncErrors(async (req, res) => {
   const prodId = req.params.prodId;
@@ -43,38 +40,45 @@ const getMyPost = catchAsyncErrors(async (req, res) => {
   }
 });
 
+// const createPost = catchAsyncErrors(async (req, res) => {
+//   const { title, description, userId } = req.body;
+//  console.log("userid*********",userId)
+//   // Define Joi schema for validation
+//   const schema = Joi.object({
+//     title: Joi.string().required(),
+//     description: Joi.string().required(),
+//     userId: Joi.string().required(), // Assuming userId is required
+//   });
+//   // Validate the request body against the schema
+//   const { error } = schema.validate({ title, description, userId });
+//   // If validation fails, respond with an error message
+//   if (error) {
+//     return res.status(400).json({ msg: error.details[0].message });
+//   }
+//   try {
+//     const product = await InstaModel.create({ title, description, postedby: userId });
+//     res.send({ msg: "Post created successfully", product });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ msg: "Something went wrong" });
+//   }
+// });
 
-const createPost = catchAsyncErrors(async (req, res) => {
-  const { title, description, userId } = req.body;
-//   const userId = req.body.userId
- console.log("userid*********",userId)
-  // Define Joi schema for validation
-  const schema = Joi.object({
-    title: Joi.string().required(),
-    description: Joi.string().required(),
-    userId: Joi.string().required(), // Assuming userId is required
-  });
-
-  // Validate the request body against the schema
-  const { error } = schema.validate({ title, description, userId });
-
-  // If validation fails, respond with an error message
-  if (error) {
-    return res.status(400).json({ msg: error.details[0].message });
-  }
-
+const createPost = async (req, res) => {
   try {
-    const product = await InstaModel.create({ title, description, postedby: userId });
-    res.send({ msg: "Post created successfully", product });
+    const instaPost = await InstaModel.create(req.body);
+    // console.log("instapost **********data ", instaPost);
+    res
+      .status(201)
+      .json({ message: "Insta post created successfully", data: instaPost });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ msg: "Something went wrong" });
+    res.status(500).json({ message: "Something went wrong" });
   }
-});
-
+};
 
 const editpost = catchAsyncErrors(async (req, res) => {
-  const prodId = req.params.prodId;
+  const prodId = req.params.id;
   const userId = req.body.userId;
   const payload = req.body;
 
@@ -85,9 +89,18 @@ const editpost = catchAsyncErrors(async (req, res) => {
     } else {
       const updatedProduct = await InstaModel.findByIdAndUpdate(
         { _id: prodId },
-        payload
+        payload,
+        {
+          new: true,
+          runValidators: true,
+          useFindAndModify: false,
+        }
       );
-      res.send({ msg: "Data updated successfully" });
+      res.status(200).json({
+        success: true,
+        msg: "Data updated successfully",
+        updatedProduct,
+      });
     }
   } catch (err) {
     console.log(err);
@@ -96,7 +109,7 @@ const editpost = catchAsyncErrors(async (req, res) => {
 });
 
 const deletepost = catchAsyncErrors(async (req, res) => {
-  const prodId = req.params.prodId;
+  const prodId = req.params.id;
   const userId = req.body.userId;
 
   try {
@@ -177,6 +190,7 @@ const addComment = catchAsyncErrors(async (req, res) => {
 });
 
 // Exporting the modified router
+
 module.exports = {
   GetAllinstapost,
   getAllinstasinglepost,
