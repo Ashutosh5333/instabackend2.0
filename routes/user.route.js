@@ -13,6 +13,7 @@ userRouter.post("/login", loginUser);
 userRouter.get("/",authenticate, getAllUsers);
 userRouter.patch("/:id",authenticate ,updateUserById)
 
+/***  Delete and single data */
 
 userRouter.get("/single/:id",getUserById)
 userRouter.delete("/delete/:id",authenticate ,DeletedUserById)
