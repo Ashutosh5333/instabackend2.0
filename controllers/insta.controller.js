@@ -7,7 +7,7 @@ const GetAllinstapost = catchAsyncErrors(async (req, res) => {
     const product = await InstaModel.find()
       .populate("postedby", ["name", "email", "image"])
       .populate("likes","name")
-      .populate("comments.postedby", ["name", "_id", "image", "username"]);
+      // .populate("comments.postedby", ["name", "_id", "image", "username"]);
     res.send(product);
   } catch (err) {
     console.log(err);

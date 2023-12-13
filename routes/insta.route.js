@@ -16,7 +16,7 @@ InstaRouter.delete("/instadelete/:id",authenticate, deletepost)
 /*** Likes and Unlike and comment */
 InstaRouter.put("/instapostlike/:id", authenticate, likeProduct);
 InstaRouter.put("/instapostunlike/:id",authenticate,unlikeProduct)
-InstaRouter.put('/instapostcomment/:id',authenticate, addComment)
+// InstaRouter.put('/instapostcomment/:id',authenticate, addComment)
 
 
 /** Public user */ 

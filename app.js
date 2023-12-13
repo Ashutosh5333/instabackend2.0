@@ -24,9 +24,11 @@ app.get("/", (req, res) => {
  /** All routes  */
 const user = require("./routes/user.route");
 const insta = require("./routes/insta.route")
+const comment = require("./routes/comment.route")
 
 app.use("/user", user);
 app.use("/insta",insta)
+app.use("/insta",comment)
 
 
 

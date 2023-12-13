@@ -29,17 +29,19 @@ const instaSchema = new mongoose.Schema(
         ref: "user",default:[]
       },
     ],
-    comments: [
-      {
-        text: {
-          type: String,
-        },
-        postedby: {
-          type: mongoose.Types.ObjectId,
-          ref: "user",
-        },
-      },
-    ],
+    // comments: [
+    //   {
+    //     text: {
+    //       type: String,
+    //     },
+    //     postedby: {
+    //       type: mongoose.Types.ObjectId,
+    //       ref: "user",
+    //     },
+    //   },
+    // ],
+    comments: [{ type: mongoose.Types.ObjectId, ref: "comment", default: [] }],
+
     postedby: {
       type: mongoose.Types.ObjectId,
       ref: "user",
