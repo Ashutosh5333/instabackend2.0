@@ -2,7 +2,7 @@ const express = require("express");
 const {
   Registeruser,
   getAllUsers,
-  loginUser,updateUserById, getUserById, DeletedUserById, followUser, unfollowUser
+  loginUser,updateUserById, getUserById, DeletedUserById, followUser, unfollowUser, findMutualFriends
 } = require("../controllers/user.controller");
 const { authenticate } = require("../middleware/authenticate");
 
@@ -21,5 +21,11 @@ userRouter.delete("/delete/:id",authenticate ,DeletedUserById)
 
 userRouter.put("/follow/:followid",authenticate, followUser)
 userRouter.put("/unfollow/:unfollowId",authenticate, unfollowUser)
+
+/*** Mutual friends */
+
+userRouter.get("/mutualfriend/:userId",authenticate, findMutualFriends)
+
+
 
 module.exports = userRouter;

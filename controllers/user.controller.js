@@ -233,6 +233,35 @@ const DeletedUserById = async (req, res) => {
     }
   };
 
+  const findMutualFriends = async (req, res) => {
+    const userId = req.params.userId;
+  
+       console.log("userId*****",userId)
+    try {
+      const user = await Usermodel.findById(userId);
+         console.log("userdata*****",user)
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+  
+      const followers = user.followers;
+      const following = user.following;
+  
+      // Find mutual friends by filtering followers who are also in the following array
+      const mutualFriends = await Usermodel.find({
+        _id: { $in: following },
+        followers: { $in: followers },
+      }).select("-password");
+  
+      res.status(200).json({
+        success: true,
+        count: mutualFriends.length,
+        mutualFriends: mutualFriends,
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: `Error finding mutual friends: ${error.message}` });
+    }
+  };
 
 module.exports = { Registeruser, getAllUsers, loginUser, updateUserById ,getUserById 
-  ,DeletedUserById ,followUser ,unfollowUser };
+  ,DeletedUserById ,followUser ,unfollowUser,findMutualFriends };
