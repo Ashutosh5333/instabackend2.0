@@ -10,12 +10,12 @@ const userRouter = express.Router();
 
 userRouter.post("/register",  Registeruser);
 userRouter.post("/login", loginUser);
-userRouter.get("/", getAllUsers);
-userRouter.patch("/:id",updateUserById)
+userRouter.get("/",authenticate, getAllUsers);
+userRouter.patch("/:id",authenticate ,updateUserById)
 
 
 userRouter.get("/single/:id",getUserById)
-userRouter.delete("/delete/:id",DeletedUserById)
+userRouter.delete("/delete/:id",authenticate ,DeletedUserById)
 
 /*** Follow and unfollow  */
 

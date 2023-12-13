@@ -47,31 +47,23 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 
   try {
     const user = await Usermodel.findOne({ email });
-    // console.log("User:", user);
-    const hashed_password = user.password;
-    // console.log("Hashed Password:", hashed_password);
 
-    if (!hashed_password) {
-      return res.send("Hashed password not found");
-    }
     if (!user) {
-      return res.send("User not registered");
+      return res.status(404).send({msg:"User not registered"});
     }
 
-    const passwordMatch = await new Promise((resolve, reject) => {
-      bcrypt.compare(password, hashed_password, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-    // console.log("password", password);
+    const hashedPassword = user.password;
+
+    if (!hashedPassword) {
+      return res.status(500).send("Hashed password not found");
+    }
+
+    const passwordMatch = await bcrypt.compare(password, hashedPassword);
 
     if (passwordMatch) {
-      const token = jwt.sign({ userId: user._id }, "hush");
-      return res.send({
+      const token = jwt.sign({ userId: user._id }, "hush", { expiresIn: '1h' });
+
+      return res.json({
         msg: "Login successful",
         token: token,
         data: {
@@ -81,11 +73,11 @@ const loginUser = catchAsyncErrors(async (req, res) => {
         },
       });
     } else {
-      return res.send("Please check password");
+      return res.status(401).send("Please check password");
     }
   } catch (error) {
     console.error("Error during login:", error);
-    return res.send("Authentication failed");
+    return res.status(500).send("Authentication failed");
   }
 });
 
@@ -93,8 +85,9 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const Alluser = await Usermodel.find().
+    const Alluser = await Usermodel.find().select("-password").
     populate("followers",["_id","name"])
+    .populate("following",["_id","name"])
     res.send({ Alluserdata: Alluser });
   } catch (err) {
     res.send("somting went wrong");
@@ -124,53 +117,72 @@ const getUserById = async (req, res) => {
 
  /*** Updated user by id */
 
+
 const updateUserById = async (req, res) => {
   const uId = req.params.id;
   const payload = req.body;
 
-  const userdata = await Usermodel.findById(uId);
-  if (!userdata) {
-    res.status(500).json({ success: false, message: "userdata Not Found" });
+  const userIdFromToken = req.userId; // Assuming the authenticated user ID is available in req.user._id
+    console.log("userid*******",userIdFromToken)
+  if (uId !== userIdFromToken) {
+    return res.status(403).json({ success: false, message: "Unauthorized to update this profile" });
   }
+
   try {
-    const Userdata = await Usermodel.findByIdAndUpdate(uId, payload, {
+    const userdata = await Usermodel.findById(uId);
+
+    if (!userdata) {
+      return res.status(404).json({ success: false, message: "User data not found" });
+    }
+
+    const updatedUserData = await Usermodel.findByIdAndUpdate(uId, payload, {
       new: true,
       runValidators: true,
       useFindAndModify: false,
-    });
+    }).select("-password");
 
     res.status(200).json({
       success: true,
       msg: "Data updated successfully",
-      Userdata,
+      Userdata: updatedUserData,
     });
   } catch (err) {
-    console.log(err);
-    res.send({ msg: "Something went wrong" });
+    console.error(err);
+    res.status(500).json({ msg: "Something went wrong" });
   }
 };
 
+
  /*** Deleted user by id */
 
- const DeletedUserById = async (req, res) => {
-    const uId = req.params.id;
-  
-    const userdata = await Usermodel.findById(uId);
-    if (!userdata) {
-      res.status(500).json({ success: false, message: "userdata Not Found" });
-    }
-    try {
-      await Usermodel.findByIdAndDelete(uId);
 
-      res.status(200).json({
-        success: true,
-        msg: "Deleted user successfully",
-      });
-    } catch (err) {
-      console.log(err);
-      res.send({ msg: "Something went wrong" });
+const DeletedUserById = async (req, res) => {
+  const uId = req.params.id;
+
+  const userIdFromToken = req.userId; // Assuming the authenticated user ID is available in req.user._id
+
+  try {
+    const userdata = await Usermodel.findById(uId);
+
+    if (!userdata) {
+      return res.status(404).json({ success: false, message: "User data not found" });
     }
-  };
+
+    if (uId !== userIdFromToken) {
+      return res.status(403).json({ success: false, message: "Unauthorized to delete this profile" });
+    }
+
+    await Usermodel.findByIdAndDelete(uId);
+
+    res.status(200).json({
+      success: true,
+      msg: "Deleted user successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Something went wrong" });
+  }
+};
 
 
   const followUser = async (req, res) => {
@@ -185,14 +197,14 @@ const updateUserById = async (req, res) => {
         followId,
         { $push: { followers: userId } },
         { new: true }
-      );
+      ).select("-password");
   
       // Update the authenticated user (add followee)
       const currentUser = await Usermodel.findByIdAndUpdate(
         userId,
         { $push: { following: followId } },
         { new: true }
-      );
+      ).select("-password");
   
       res.json({ followedUser, currentUser });
     } catch (error) {
@@ -209,11 +221,11 @@ const updateUserById = async (req, res) => {
   
       await Usermodel.findByIdAndUpdate(unfollowId, {
         $pull: { followers: userId }
-      }, { new: true });
+      }, { new: true }).select("-password");
   
       const updatedUser = await Usermodel.findByIdAndUpdate(userId, {
         $pull: { following: unfollowId }
-      }, { new: true });
+      }, { new: true }).select("-password");
   
       res.json(updatedUser);
     } catch (err) {
