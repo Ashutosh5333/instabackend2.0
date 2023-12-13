@@ -75,8 +75,72 @@ const AddComment = async (req, res) => {
       res.status(400).send('Internal Server error.');
     }
   };
+   
+     /*** comments  replies */
+
+     const addReply = async (req, res) => {
+         const userId = req.userId
+        try {
+          const comment = await CommentModel.findById(req.params.comment_id).populate('replies');
+          const user = await Usermodel.findById(userId);
+      
+          if (!comment) return res.status(404).send('Invalid comment id.');
+      
+          let newReply = {
+            user: user._id,
+            text: req.body.text,
+            name: user.name
+          };
+      
+          comment.replies.unshift(newReply);
+          await comment.save();
+      
+          res.send({
+            msg: 'Reply added successfully',
+            replies: comment.replies,
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(400).send('Internal Server error');
+        }
+      };
+
+    /***
+     * Delete replieesss
+     */
+
+    const deleteReply = async (req, res) => {
+          const userId = req.userId
+        try {
+          const comment = await CommentModel.findById(req.params.comment_id);
+      
+          if (!comment) return res.status(404).send('Invalid comment id.');
+      
+          const removeIndex = comment.replies
+            .map((reply) => reply._id.toString())
+            .indexOf(req.params.reply_id);
+      
+          if (removeIndex < 0) return res.status(404).send('Invalid reply id.');
+      
+          if (comment.replies[removeIndex].user != userId)
+            return res.status(401).send('Authorization failed.');
+      
+          comment.replies.splice(removeIndex, 1);
+          await comment.save();
+      
+          res.send({
+            msg: 'Reply deleted successfully.',
+            replies: comment.replies,
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(400).send('Internal Server error.');
+        }
+      };
 
   module.exports = {
     AddComment,
-    deleteComment
+    deleteComment,
+    addReply,
+    deleteReply
   };

@@ -2,26 +2,48 @@ const Joi = require("joi");
 const catchAsyncErrors = require("../middleware/catchError"); // Assuming you have this middleware defined
 const { InstaModel, instaValidationSchema } = require("../models/Insta.model");
 
+// const GetAllinstapost = catchAsyncErrors(async (req, res) => {
+//   try {
+//     const product = await InstaModel.find()
+//       .populate("postedby", ["name", "email", "image"])
+//       .populate("likes","name")
+//       .populate("comments","text")
+//       .populate("comments.replies","text")
+//     res.send(product);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
+
 const GetAllinstapost = catchAsyncErrors(async (req, res) => {
   try {
     const product = await InstaModel.find()
-      .populate("postedby", ["name", "email", "image"])
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'replies',
+          select: 'text date'
+        }
+      }).populate("postedby",["name"])
       .populate("likes","name")
-      // .populate("comments.postedby", ["name", "_id", "image", "username"]);
+
     res.send(product);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 });
 
+
+
 const getAllinstasinglepost = catchAsyncErrors(async (req, res) => {
-  const prodId = req.params.prodId;
+  const prodId = req.params.id;
   const userId = req.body.userId;
   try {
     const product = await InstaModel.find({ userId: prodId })
       .populate("postedby", ["name", "email", "image"])
-      .populate("comments.postedby", ["name", "_id", "image", "username"]);
+      .populate("comments", ["name", "_id", "image", "username"]);
     res.send(product);
   } catch (err) {
     console.log(err);

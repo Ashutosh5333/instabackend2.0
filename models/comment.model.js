@@ -1,6 +1,26 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
+const ReplySchema = Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+  },
+  text: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+  },
+  avatar_url: {
+    type: String,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const CommentSchema = Schema({
   user: {
     type: Schema.Types.ObjectId,
@@ -15,27 +35,7 @@ const CommentSchema = Schema({
   avatar_url: {
     type: String,
   },
-  replies: [
-    {
-      user: {
-        type: Schema.Types.ObjectId,
-      },
-      text: {
-        type: String,
-        required: true,
-      },
-      name: {
-        type: String,
-      },
-      avatar_url: {
-        type: String,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
+  replies: [ReplySchema], // Use the ReplySchema for replies
   date: {
     type: Date,
     default: Date.now,
@@ -54,11 +54,14 @@ module.exports = { CommentModel };
 
 
 
-// const mongoose = require("mongoose");
 
-// const CommentSchema = new mongoose.Schema({
+
+// const mongoose = require("mongoose");
+// const { Schema, model } = mongoose;
+
+// const CommentSchema = Schema({
 //   user: {
-//     type: mongoose.Types.ObjectId, ref:"user"
+//     type: Schema.Types.ObjectId,
 //   },
 //   text: {
 //     type: String,
@@ -73,8 +76,7 @@ module.exports = { CommentModel };
 //   replies: [
 //     {
 //       user: {
-//         type: mongoose.Types.ObjectId,
-//         ref:"user"
+//         type: Schema.Types.ObjectId,
 //       },
 //       text: {
 //         type: String,
@@ -98,6 +100,12 @@ module.exports = { CommentModel };
 //   },
 // });
 
-// const CommentModel = mongoose.model("comment", CommentSchema);
+// const CommentModel = model("comment", CommentSchema);
 
 // module.exports = { CommentModel };
+
+
+
+
+
+
