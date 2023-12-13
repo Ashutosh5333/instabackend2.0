@@ -93,7 +93,8 @@ const loginUser = catchAsyncErrors(async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const Alluser = await Usermodel.find();
+    const Alluser = await Usermodel.find().
+    populate("followers",["_id","name"])
     res.send({ Alluserdata: Alluser });
   } catch (err) {
     res.send("somting went wrong");
@@ -170,10 +171,56 @@ const updateUserById = async (req, res) => {
       res.send({ msg: "Something went wrong" });
     }
   };
+
+
+  const followUser = async (req, res) => {
+    try {
+      const userId = req.userId; // Assuming the authenticated user's ID is in req.user._id
+      const followId = req.params.followid; // Assuming the ID of the user to follow is in req.body.followId
+     
+       console.log("userid********",userId)
+       console.log("followid********",followId)
+      // Update the user being followed (add follower)
+      const followedUser = await Usermodel.findByIdAndUpdate(
+        followId,
+        { $push: { followers: userId } },
+        { new: true }
+      );
+  
+      // Update the authenticated user (add followee)
+      const currentUser = await Usermodel.findByIdAndUpdate(
+        userId,
+        { $push: { following: followId } },
+        { new: true }
+      );
+  
+      res.json({ followedUser, currentUser });
+    } catch (error) {
+      res.status(422).json({ error: error.message });
+    }
+  };
   
   
   
+  const unfollowUser = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const unfollowId = req.params.unfollowId;
+  
+      await Usermodel.findByIdAndUpdate(unfollowId, {
+        $pull: { followers: userId }
+      }, { new: true });
+  
+      const updatedUser = await Usermodel.findByIdAndUpdate(userId, {
+        $pull: { following: unfollowId }
+      }, { new: true });
+  
+      res.json(updatedUser);
+    } catch (err) {
+      res.status(422).json({ error: err.message });
+    }
+  };
 
 
-
-module.exports = { Registeruser, getAllUsers, loginUser, updateUserById ,getUserById ,DeletedUserById };
+module.exports = { Registeruser, getAllUsers, loginUser, updateUserById ,getUserById 
+  ,DeletedUserById ,followUser ,unfollowUser };

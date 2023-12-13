@@ -16,6 +16,7 @@ const { InstaModel, instaValidationSchema } = require("../models/Insta.model");
 //   }
 // });
 
+
 const GetAllinstapost = catchAsyncErrors(async (req, res) => {
   try {
     const product = await InstaModel.find()
@@ -33,6 +34,7 @@ const GetAllinstapost = catchAsyncErrors(async (req, res) => {
     console.log(err);
     res.status(500).send('Internal Server Error');
   }
+  
 });
 
 
