@@ -6,15 +6,20 @@ const { Chatmodel } = require("../models/chat.model");
       const { firstId, secondId } = req.body;
         
       /** Here checking by both id if chat is present send the that chat */
-      const chat = await Chatmodel.findOne({ members: { $all: [firstId, secondId] } });
-        
+      const chat = await Chatmodel.findOne({ members: { $all: [firstId, secondId] } }).populate({
+        path: 'members',
+        select: 'name info', // Populate name and info fields
+      });
       if (chat) {
-        return res.status(200).json(chat);  // here I am return the chat if both user present  else create new chat
+        return res.status(200).json({msg:"Created chat room successfully",chat});  // here I am return the chat if both user present  else create new chat
       }  
 
         /** Here I am creating new Chat */
 
-      const newChat = new Chatmodel({ members: [firstId, secondId] }).populate("members");
+      const newChat = new Chatmodel({ members: [firstId, secondId] }).populate({
+        path: 'members',
+        select: 'name info', // Populate name and info fields
+      });
       const response = await newChat.save();
          
       res.status(201).json({msg:"Created new chats",response}); // 201 for successful resource creation
@@ -32,7 +37,10 @@ const { Chatmodel } = require("../models/chat.model");
       const userId = req.params.userId;
 
        /*** here I am searching if user is any chat tehn given that Id */
-      const chats = await Chatmodel.find({ members: { $in: [userId] } });
+      const chats = await Chatmodel.find({ members: { $in: [userId] } }).populate({
+        path: 'members',
+        select: 'name info', // Populate name and info fields
+      });;
       
       res.status(200).json(chats);
     } catch (err) {
@@ -46,7 +54,10 @@ const { Chatmodel } = require("../models/chat.model");
   const getChatByUserIds = async (req, res) => {
     try {
       const { firstId, secondId } = req.params;
-      const singleChat = await Chatmodel.findOne({ members: { $all: [firstId, secondId] } });
+      const singleChat = await Chatmodel.findOne({ members: { $all: [firstId, secondId] } }).populate({
+        path: 'members',
+        select: 'name info', // Populate name and info fields
+      });;
   
       res.status(200).json({msg:"Singlechat",singleChat});
     } catch (err) {

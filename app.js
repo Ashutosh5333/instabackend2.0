@@ -26,11 +26,14 @@ const user = require("./routes/user.route");
 const insta = require("./routes/insta.route")
 const comment = require("./routes/comment.route")
 const chats = require("./routes/chat.route")
+const message = require("./routes/message.route")
+
 
 app.use("/user", user);
 app.use("/insta",insta)
 app.use("/insta",comment)
 app.use("/chat",chats)
+app.use("/message",message)
 
 
 
