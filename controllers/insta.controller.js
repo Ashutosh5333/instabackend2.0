@@ -2,20 +2,6 @@ const Joi = require("joi");
 const catchAsyncErrors = require("../middleware/catchError"); // Assuming you have this middleware defined
 const { InstaModel, instaValidationSchema } = require("../models/Insta.model");
 
-// const GetAllinstapost = catchAsyncErrors(async (req, res) => {
-//   try {
-//     const product = await InstaModel.find()
-//       .populate("postedby", ["name", "email", "image"])
-//       .populate("likes","name")
-//       .populate("comments","text")
-//       .populate("comments.replies","text")
-//     res.send(product);
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
-
 
 const GetAllinstapost = catchAsyncErrors(async (req, res) => {
   try {
@@ -53,6 +39,7 @@ const getAllinstasinglepost = catchAsyncErrors(async (req, res) => {
   }
 });
 
+
 const getMyPost = catchAsyncErrors(async (req, res) => {
       console.log("userid********",req.userId)
   try {
@@ -64,29 +51,6 @@ const getMyPost = catchAsyncErrors(async (req, res) => {
   }
 });
 
-// const createPost = catchAsyncErrors(async (req, res) => {
-//   const { title, description, userId } = req.body;
-//  console.log("userid*********",userId)
-//   // Define Joi schema for validation
-//   const schema = Joi.object({
-//     title: Joi.string().required(),
-//     description: Joi.string().required(),
-//     userId: Joi.string().required(), // Assuming userId is required
-//   });
-//   // Validate the request body against the schema
-//   const { error } = schema.validate({ title, description, userId });
-//   // If validation fails, respond with an error message
-//   if (error) {
-//     return res.status(400).json({ msg: error.details[0].message });
-//   }
-//   try {
-//     const product = await InstaModel.create({ title, description, postedby: userId });
-//     res.send({ msg: "Post created successfully", product });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ msg: "Something went wrong" });
-//   }
-// });
 
 const createPost = async (req, res) => {
   try {
@@ -161,7 +125,7 @@ const deletepost = catchAsyncErrors(async (req, res) => {
 
 const likeProduct = catchAsyncErrors(async (req, res) => {
   const userId = req.userId;
-       console.log("useriflike*******",userId)
+      //  console.log("useriflike*******",userId)
   try {
     const result = await InstaModel.findByIdAndUpdate(
       req.params.id,
