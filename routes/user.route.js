@@ -10,7 +10,7 @@ const userRouter = express.Router();
 
 userRouter.post("/register",  Registeruser);
 userRouter.post("/login", loginUser);
-userRouter.get("/",authenticate, getAllUsers);
+userRouter.get("/", getAllUsers);
 userRouter.patch("/:id",authenticate ,updateUserById)
 
 /***  Delete and single data */

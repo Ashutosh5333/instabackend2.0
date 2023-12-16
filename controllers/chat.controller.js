@@ -1,6 +1,7 @@
 const { Chatmodel } = require("../models/chat.model");
 
     /*** Create chat */
+
  const createChat = async (req, res) => {
     try {
       const { firstId, secondId } = req.body;
@@ -8,20 +9,18 @@ const { Chatmodel } = require("../models/chat.model");
       /** Here checking by both id if chat is present send the that chat */
       const chat = await Chatmodel.findOne({ members: { $all: [firstId, secondId] } }).populate({
         path: 'members',
-        select: 'name info', // Populate name and info fields
+        select: 'name ', // Populate name and info fields
       });
       if (chat) {
-        return res.status(200).json({msg:"Created chat room successfully",chat});  // here I am return the chat if both user present  else create new chat
+        return res.status(200).json({msg:" chat room alraedy",chat});  // here I am return the chat if both user present  else create new chat
       }  
 
         /** Here I am creating new Chat */
 
-      const newChat = new Chatmodel({ members: [firstId, secondId] }).populate({
-        path: 'members',
-        select: 'name info', // Populate name and info fields
-      });
+      const newChat = new Chatmodel({ members: [firstId, secondId] })
+       console.log("newchat*****",newChat)
       const response = await newChat.save();
-         
+        
       res.status(201).json({msg:"Created new chats",response}); // 201 for successful resource creation
     } catch (err) {
       console.error(err);

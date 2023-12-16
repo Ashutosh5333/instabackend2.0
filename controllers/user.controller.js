@@ -1,5 +1,7 @@
 const catchAsyncErrors = require("../middleware/catchError");
 const { Usermodel } = require("../models/User.model");
+const { ObjectId } = require('mongoose').Types;
+// const mongoose = require('mongoose');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -88,7 +90,7 @@ const getAllUsers = async (req, res) => {
     const Alluser = await Usermodel.find().select("-password").
     populate("followers",["_id","name"])
     .populate("following",["_id","name"])
-    res.send({ Alluserdata: Alluser });
+    res.send( Alluser );
   } catch (err) {
     res.send("somting went wrong");
   }
@@ -99,16 +101,15 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   const uId = req.params.id;
   try {
-      const user = await Usermodel.findById( uId )
-     console.log("userdata",user)
-       if(!user){
+    // const userId = mongoose.Types.ObjectId(uId);
+    const userId = new ObjectId(uId);
+      // const user = await Usermodel.findById( userId )
+    //  console.log("userdata",user)
+    const Userdata = await Usermodel.findById(userId).select("-password");
+       if(!Userdata){
          res.status(500).json({ success: false, message: "User Not Found" });
        }
-       const Userdata = await Usermodel.findById(uId).select("-password");
-       res.status(200).json({
-         success: true,
-         Userdata,
-       });
+       res.status(200).json(Userdata);
   } catch (err) {
     console.log(err);
     res.send({ msg: "Something went wrong" });
